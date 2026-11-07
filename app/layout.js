@@ -1,5 +1,8 @@
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
+import { Providers } from "@/components/providers";
+import { Navbar } from "@/components/navbar";
+import { getCurrentUser, publicUser } from "@/lib/server/auth";
 import "./globals.css";
 
 const bricolage = localFont({
@@ -14,11 +17,15 @@ export const metadata = {
   description: "Learn from the best. Teach what you know.",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const user = await getCurrentUser();
   return (
     <html lang="en" className={bricolage.variable}>
       <body className="min-h-screen">
-        {children}
+        <Providers initialUser={user ? publicUser(user) : null}>
+          <Navbar />
+          {children}
+        </Providers>
         <Toaster theme="dark" position="top-right" />
       </body>
     </html>
