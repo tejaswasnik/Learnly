@@ -10,6 +10,10 @@ const lectureSchema = new mongoose.Schema(
     filePath: { type: String },
     isPreviewFree: { type: Boolean, default: false },
     courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true, index: true },
+    // Optional grouping. A lecture with no section (null) belongs to the unsectioned group, shown after all sections.
+    sectionId: { type: mongoose.Schema.Types.ObjectId, ref: "Section", default: null },
+    // Order within its group. Lectures created before sections existed have none and sort by createdAt, as before.
+    position: { type: Number },
   },
   { timestamps: true },
 );

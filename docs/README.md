@@ -104,6 +104,14 @@ How it behaves:
 - Deleting the account releases the Google link, so the same Google account can sign up again as a new person.
 - Rate limits: 30 per hour per IP on the start and callback routes, 10 per hour on account creation.
 
+## Sections and lecture order
+Instructors can group lectures into **sections** and put both in any order. On the course's lecture page: **Add section**, then rename, delete, or move sections and lectures with the up and down buttons (they work with the keyboard, and screen readers hear where the item ended up). The lecture form has a **Section** field to move a lecture to another section or out of all sections.
+- Order everywhere (course page, player, instructor list, lecture API) is: each section in its order with its own lectures, then lectures with no section last, under the heading "Other lectures". A course with no sections looks exactly as before.
+- Deleting a section **keeps its lectures**; they move to the end of the course under "Other lectures".
+- A course can have up to 50 sections. Empty sections are visible to the instructor only.
+- Courses created before sections existed need no migration: lectures without a position sort by creation date, as they always did, and get explicit positions the first time the instructor reorders.
+- API (instructor, course owner only): `POST /api/sections/create`, `PATCH /api/sections/update/:id`, `DELETE /api/sections/:id`, and `POST /api/lectures/reorder` which takes the whole new arrangement (`sectionIds` plus `groups`, a map of section id or `none` to ordered lecture ids). It answers 409 if the arrangement does not match the course as it is now (for example it was changed in another tab), and changes nothing. `sectionId` is also accepted by lecture create and update, and returned with every lecture.
+
 ## Profile photo
 On the profile page a user can upload a JPEG, PNG or WebP photo (up to 5 MB; type and file signature are checked on the server) or remove it. The photo is stored in ImageKit under `/avatars`, shown in the navbar and on course pages (ImageKit resizes it), and the old file is deleted when it is replaced or removed. Without a photo the UI shows initials. API: `PATCH /api/users/me` accepts JSON `{name}` or multipart with `name` and/or `avatar`; `DELETE /api/users/me/avatar` removes it.
 

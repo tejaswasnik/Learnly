@@ -7,7 +7,7 @@ import { api } from "@/lib/client/api";
 import { notify } from "@/lib/client/notify";
 import { checkVideo, isAbort, readVideoDuration, uploadVideo } from "@/lib/client/video-upload";
 import { Button, ButtonLink } from "@/components/ui/button";
-import { TextareaField } from "@/components/ui/form-fields";
+import { SelectField, TextareaField } from "@/components/ui/form-fields";
 import { Icon } from "@/components/ui/icon";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { TextField } from "@/components/ui/text-field";
@@ -38,6 +38,8 @@ export function LectureForm({ course, lecture }) {
   const [title, setTitle] = useState(lecture?.lectureTitle ?? "");
   const [description, setDescription] = useState(lecture?.description ?? "");
   const [isPreviewFree, setIsPreviewFree] = useState(lecture?.isPreviewFree ?? false);
+  const [sectionId, setSectionId] = useState(lecture?.sectionId ?? "");
+  const sections = course.sections ?? [];
   const [mode, setMode] = useState(lecture && !lecture.isExternal ? "upload" : lecture ? "url" : "upload");
   const [videoUrl, setVideoUrl] = useState(lecture?.isExternal ? lecture.videoUrl : "");
   const [minutes, setMinutes] = useState(lecture?.isExternal ? String(Math.floor(lecture.duration / 60)) : "");
@@ -149,6 +151,7 @@ export function LectureForm({ course, lecture }) {
       description: description.trim(),
       duration,
       isPreviewFree,
+      sectionId: sectionId || null,
     };
     // Only send a video source when it is new or changed; the server swaps the old file out.
     if (mode === "upload" && upload.fileId) Object.assign(body, { fileId: upload.fileId, filePath: upload.filePath });
@@ -214,6 +217,16 @@ export function LectureForm({ course, lecture }) {
             error={errors.description}
             maxLength={2000}
           />
+          {sections.length > 0 && (
+            <SelectField
+              id="sectionId"
+              label="Section"
+              helper={isEdit ? "Changing the section moves this lecture to the end of the new one." : "The lecture is added at the end of the section."}
+              value={sectionId}
+              onChange={(e) => setSectionId(e.target.value)}
+              options={[{ value: "", label: "No section" }, ...sections.map((s) => ({ value: s.id, label: s.title }))]}
+            />
+          )}
         </Section>
 
         <Section title="Video" description="Upload a file or paste a link. Learners stream the lecture; they cannot download it.">

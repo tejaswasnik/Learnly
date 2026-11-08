@@ -6,6 +6,7 @@ import { LectureStage } from "@/components/player/lecture-stage";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { api } from "@/lib/client/api";
+import { groupLectures } from "@/lib/shared/curriculum";
 import { formatClock, formatTotalLength } from "@/lib/shared/format";
 
 function PlayerSkeleton() {
@@ -25,10 +26,16 @@ function PlayerSkeleton() {
   );
 }
 
-function LectureList({ lectures, activeId, onSelect }) {
+function LectureList({ lectures, sections, activeId, onSelect }) {
+  const groups = groupLectures(lectures, sections).filter((g) => g.lectures.length > 0);
   return (
-    <ol className="flex flex-col gap-2">
-      {lectures.map((l, i) => {
+    <div className="flex flex-col gap-4">
+      {groups.map((group) => (
+        <div key={group.section?.id ?? "none"} className="flex flex-col gap-2">
+          {group.label && <h3 className="px-1 text-body font-semibold text-ink">{group.label}</h3>}
+          <ol className="flex flex-col gap-2">
+      {group.lectures.map((l) => {
+        const i = lectures.findIndex((x) => x.id === l.id);
         const active = l.id === activeId;
         return (
           <li key={l.id}>
@@ -50,7 +57,10 @@ function LectureList({ lectures, activeId, onSelect }) {
           </li>
         );
       })}
-    </ol>
+          </ol>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -58,6 +68,7 @@ export function CoursePlayer({ courseId }) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [lectures, setLectures] = useState(null);
+  const [sections, setSections] = useState([]);
   const [failedKey, setFailedKey] = useState(null);
   const [nonce, setNonce] = useState(0);
   const [activeId, setActiveId] = useState(null);
@@ -71,6 +82,7 @@ export function CoursePlayer({ courseId }) {
       .then(([lectureRes, courseRes]) => {
         if (cancelled) return;
         setTitle(courseRes.course.courseTitle);
+        setSections(lectureRes.sections ?? []);
         setLectures(lectureRes.lectures);
         setActiveId((current) => current ?? lectureRes.lectures[0]?.id ?? null);
       })
@@ -192,7 +204,7 @@ export function CoursePlayer({ courseId }) {
           <Icon name="hide-panel" size={20} />
         </Button>
       </div>
-      <LectureList lectures={lectures} activeId={activeId} onSelect={(id) => select(id)} />
+      <LectureList lectures={lectures} sections={sections} activeId={activeId} onSelect={(id) => select(id)} />
     </aside>
   );
 

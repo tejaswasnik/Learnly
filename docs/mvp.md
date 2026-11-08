@@ -41,7 +41,7 @@ Consequences we accept for now:
 - No rate limiting on auth routes.
 
 ### Phase 2 status
-Done in Phase 2 (see `docs/phase2-prompts.md`): Razorpay webhook, email verification, forgot/reset password, rate limiting, logout token blacklist (MongoDB, no Redis), account deletion, orphan upload cleanup. Still deferred: Google sign-in, Redis, avatar upload, admin API/UI, progress tracking, Q&A tab, lecture reordering/sections, Docker/compose, tests/CI, SEO beyond basic metadata, all of v2.
+Done in Phase 2 (see `docs/phase2-prompts.md`): Razorpay webhook, email verification, forgot/reset password, rate limiting, logout token blacklist (MongoDB, no Redis), account deletion, orphan upload cleanup. Done later: Google sign-in, avatar upload, lecture sections and reordering. Still deferred: Redis, admin API/UI, progress tracking, Q&A tab, Docker/compose, tests/CI, SEO beyond basic metadata, all of v2.
 
 ## 4. Decisions that differ from the spec
 

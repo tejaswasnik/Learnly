@@ -6,6 +6,7 @@ import { usePreview } from "@/components/course/preview-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { groupLectures } from "@/lib/shared/curriculum";
 import { formatClock, formatTotalLength } from "@/lib/shared/format";
 
 const INITIAL_VISIBLE = 8;
@@ -30,9 +31,11 @@ function RowBody({ index, lecture, locked, previewable }) {
 export function Curriculum({ course }) {
   const { activeId, setActiveId } = usePreview();
   const [expanded, setExpanded] = useState(false);
-  const { lectures, canAccess } = course;
+  const { lectures, canAccess, sections = [] } = course;
   const hidden = Math.max(0, lectures.length - INITIAL_VISIBLE);
   const visible = expanded ? lectures : lectures.slice(0, INITIAL_VISIBLE);
+  // Empty sections are an instructor's work in progress; learners only see sections that have lectures.
+  const groups = groupLectures(visible, sections).filter((g) => g.lectures.length > 0);
   const totalSeconds = lectures.reduce((sum, l) => sum + l.duration, 0);
 
   return (
@@ -48,8 +51,20 @@ export function Curriculum({ course }) {
       {lectures.length === 0 ? (
         <p className="mt-6 text-muted">No lectures yet.</p>
       ) : (
-        <ol className="mt-6 flex flex-col gap-2">
-          {visible.map((lecture, i) => {
+        <div className="mt-6 flex flex-col gap-6">
+          {groups.map((group) => (
+            <div key={group.section?.id ?? "none"} className="flex flex-col gap-2">
+              {group.label && (
+                <h3 className="text-h3 text-ink">
+                  {group.label}
+                  <span className="ml-3 text-small font-normal text-muted">
+                    {group.lectures.length} {group.lectures.length === 1 ? "lecture" : "lectures"}
+                  </span>
+                </h3>
+              )}
+              <ol className="flex flex-col gap-2">
+          {group.lectures.map((lecture) => {
+            const i = lectures.findIndex((l) => l.id === lecture.id);
             const previewable = !canAccess && lecture.isPreviewFree && Boolean(lecture.videoUrl);
             const locked = !canAccess && !previewable;
             const body = <RowBody index={i} lecture={lecture} locked={locked} previewable={previewable} />;
@@ -79,7 +94,10 @@ export function Curriculum({ course }) {
               </li>
             );
           })}
-        </ol>
+              </ol>
+            </div>
+          ))}
+        </div>
       )}
 
       {hidden > 0 && (
