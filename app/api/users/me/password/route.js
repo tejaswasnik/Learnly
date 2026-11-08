@@ -1,11 +1,14 @@
 import { publicUser, requireUser, setSessionCookie } from "@/lib/server/auth";
-import { HttpError, ok, parseBody, withErrors } from "@/lib/server/http";
+import { HttpError, ok, parseBody } from "@/lib/server/http";
+import { HOUR, withRateLimit } from "@/lib/server/services/rate-limit";
 import { changePasswordSchema } from "@/lib/server/validators/auth";
 import { User } from "@/models/user";
 
 export const runtime = "nodejs";
 
-export const PATCH = withErrors(async (req) => {
+export const PATCH = withRateLimit([
+  { name: "change-password", limit: 5, windowMs: HOUR, by: "user" },
+], async (req) => {
   const session = await requireUser(req);
   const { currentPassword, newPassword } = await parseBody(changePasswordSchema, req);
 

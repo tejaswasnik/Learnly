@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/server/auth";
 import { connectDb } from "@/lib/server/db";
-import { HttpError, ok, parseBody, withErrors } from "@/lib/server/http";
+import { HttpError, ok, parseBody } from "@/lib/server/http";
+import { HOUR, withRateLimit } from "@/lib/server/services/rate-limit";
 import { settleOrder } from "@/lib/server/services/payments";
 import { verifySignature } from "@/lib/server/services/razorpay";
 import { verifyPaymentSchema } from "@/lib/server/validators/payment";
@@ -8,7 +9,9 @@ import { Order } from "@/models/order";
 
 export const runtime = "nodejs";
 
-export const POST = withErrors(async (req) => {
+export const POST = withRateLimit([
+  { name: "verify-payment", limit: 30, windowMs: HOUR, by: "user" },
+], async (req) => {
   const user = await requireUser(req);
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = await parseBody(verifyPaymentSchema, req);
   await connectDb();

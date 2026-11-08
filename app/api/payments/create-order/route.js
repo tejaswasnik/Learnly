@@ -1,7 +1,8 @@
 import { requireVerified } from "@/lib/server/auth";
 import { getConfig } from "@/lib/server/config";
 import { connectDb } from "@/lib/server/db";
-import { HttpError, ok, parseBody, parseId, withErrors } from "@/lib/server/http";
+import { HttpError, ok, parseBody, parseId } from "@/lib/server/http";
+import { HOUR, withRateLimit } from "@/lib/server/services/rate-limit";
 import { enrollUser, isEnrolled } from "@/lib/server/services/enrollment";
 import { getRazorpay } from "@/lib/server/services/razorpay";
 import { createOrderSchema } from "@/lib/server/validators/payment";
@@ -10,7 +11,9 @@ import { Order } from "@/models/order";
 
 export const runtime = "nodejs";
 
-export const POST = withErrors(async (req) => {
+export const POST = withRateLimit([
+  { name: "create-order", limit: 20, windowMs: HOUR, by: "user" },
+], async (req) => {
   const user = await requireVerified(req);
   const { courseId } = await parseBody(createOrderSchema, req);
   parseId(courseId);

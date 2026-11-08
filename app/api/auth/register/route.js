@@ -1,5 +1,6 @@
 import { connectDb } from "@/lib/server/db";
-import { HttpError, ok, parseBody, withErrors } from "@/lib/server/http";
+import { HttpError, ok, parseBody } from "@/lib/server/http";
+import { HOUR, withRateLimit } from "@/lib/server/services/rate-limit";
 import { publicUser, setSessionCookie } from "@/lib/server/auth";
 import { sendVerificationEmail } from "@/lib/server/services/verification";
 import { registerSchema } from "@/lib/server/validators/auth";
@@ -7,7 +8,9 @@ import { User } from "@/models/user";
 
 export const runtime = "nodejs";
 
-export const POST = withErrors(async (req) => {
+export const POST = withRateLimit([
+  { name: "register", limit: 5, windowMs: HOUR, by: "ip" },
+], async (req) => {
   const { name, email, password, role } = await parseBody(registerSchema, req);
   await connectDb();
 

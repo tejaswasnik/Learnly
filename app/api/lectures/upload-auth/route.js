@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server/auth";
 import { getConfig } from "@/lib/server/config";
-import { withErrors } from "@/lib/server/http";
+import { HOUR, withRateLimit } from "@/lib/server/services/rate-limit";
 import { getImageKit } from "@/lib/server/services/imagekit";
 
 export const runtime = "nodejs";
@@ -10,7 +10,9 @@ const UPLOAD_AUTH_SECONDS = 15 * 60;
 
 // Short-lived, single-use parameters so the browser can upload a video straight to ImageKit
 // without the private key ever leaving the server.
-export const GET = withErrors(async (req) => {
+export const GET = withRateLimit([
+  { name: "upload-auth", limit: 60, windowMs: HOUR, by: "user" },
+], async (req) => {
   await requireRole(req, "instructor");
   // The SDK's second argument is an absolute Unix timestamp (its doc comment says "seconds from now", which is wrong).
   const expiresAt = Math.floor(Date.now() / 1000) + UPLOAD_AUTH_SECONDS;

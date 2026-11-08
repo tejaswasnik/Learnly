@@ -40,6 +40,25 @@ The webhook enrolls students who paid but closed the tab before checkout verific
 
 Deliveries whose signature does not match, or whose amount or currency differs from the stored order, never enroll anyone. Unknown orders and unhandled events get a 200 so Razorpay stops retrying.
 
+## Rate limits
+Counters live in the `ratelimits` collection (a TTL index removes finished windows). Over a limit the API answers `429` with a `Retry-After` header.
+
+| Route | Limit |
+| --- | --- |
+| `POST /api/auth/login` | 10 / 15 min per IP + email, and 50 / 15 min per IP |
+| `POST /api/auth/register` | 5 / hour per IP |
+| `POST /api/auth/forgot-password` | 5 / hour per IP, and 3 / hour per email |
+| `POST /api/auth/reset-password`, `/verify-email` | 10 / hour per IP |
+| `POST /api/auth/resend-verification` | 3 / hour per user (plus a 60 s cooldown) |
+| `PATCH /api/users/me/password` | 5 / hour per user |
+| `POST /api/payments/create-order` | 20 / hour per user |
+| `POST /api/payments/verify` | 30 / hour per user |
+| `GET /api/lectures/upload-auth` | 60 / hour per user |
+
+The Razorpay webhook and `/health` are not limited. IP limits use the first value of `x-forwarded-for` (then `x-real-ip`). **Your hosting platform must overwrite that header**, otherwise a client can forge it and dodge the limits. If the platform does not forward the client address, every visitor appears as the proxy and shares one bucket.
+
+Logout stores the token's id (`jti`) in the `revokedtokens` collection until the token would have expired, so a copied cookie stops working at once.
+
 ## Demo script
 1. Register as an **instructor**, create a course with a thumbnail, add lectures (upload a video, or paste a YouTube link) and mark one as a free preview.
 2. Turn **Published** on in the instructor dashboard.
@@ -49,7 +68,8 @@ Deliveries whose signature does not match, or whose amount or currency differs f
 
 ## Known limitations
 - Uploaded videos that are never attached to a saved lecture stay in ImageKit (no cleanup job).
-- No rate limiting.
+- Rate limiting is a fixed window stored in MongoDB and fails open if the database errors. It is per client IP, so the host must overwrite `x-forwarded-for` (see Rate limits).
+- Sessions issued before the logout blacklist existed have no token id and cannot be revoked by logout; they expire within 7 days.
 - No Google sign-in or account deletion.
 - Player uses native video controls; YouTube lectures do not auto-advance.
 - Prices are INR, USD or EUR.
