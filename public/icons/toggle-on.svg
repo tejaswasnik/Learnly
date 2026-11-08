@@ -1,0 +1,7 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="48" height="28" viewBox="0 0 48 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Track">
+<path d="M14 0.5H34C41.4558 0.500001 47.5 6.54416 47.5 14C47.5 21.4558 41.4558 27.5 34 27.5H14C6.54416 27.5 0.5 21.4558 0.5 14C0.5 6.54416 6.54416 0.5 14 0.5Z" fill="#B11226"/>
+<path d="M14 0.5H34C41.4558 0.500001 47.5 6.54416 47.5 14C47.5 21.4558 41.4558 27.5 34 27.5H14C6.54416 27.5 0.5 21.4558 0.5 14C0.5 6.54416 6.54416 0.5 14 0.5Z" stroke="#D86476"/>
+<circle id="Thumb" cx="33" cy="14" r="10" fill="white"/>
+</g>
+</svg>

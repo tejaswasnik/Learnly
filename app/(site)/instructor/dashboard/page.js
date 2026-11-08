@@ -1,5 +1,7 @@
-import { Hello } from "@/components/hello";
+import { InstructorDashboard } from "@/components/instructor/dashboard";
+
+export const metadata = { title: "Your courses" };
 
 export default function Page() {
-  return <Hello path="/instructor/dashboard" />;
+  return <InstructorDashboard />;
 }
