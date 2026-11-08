@@ -24,7 +24,8 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const user = await getCurrentUser();
+  // If the database is unreachable, public pages should still render (as signed out) instead of failing.
+  const user = await getCurrentUser().catch(() => null);
   return (
     <html lang="en" className={bricolage.variable}>
       <body className="min-h-screen">
