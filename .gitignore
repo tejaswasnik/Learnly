@@ -10,3 +10,6 @@ coverage
 *.pem
 *.tsbuildinfo
 .vercel
+
+# Local working notes (specs, build prompts); kept on disk, not published
+/docs/

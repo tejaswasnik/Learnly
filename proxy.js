@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-// Next.js 16 renamed middleware.js to proxy.js; behaviour is the same (docs/mvp.md section 8).
+// Next.js 16 renamed middleware.js to proxy.js; behaviour is the same.
 
 const GUEST_ONLY = ["/login", "/register"];
 const SIGNED_IN = ["/dashboard", "/learn", "/me"];
