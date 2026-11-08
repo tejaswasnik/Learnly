@@ -40,6 +40,9 @@ Consequences we accept for now:
 - Without the webhook, a student who pays and closes the tab before `verify` runs is charged but not enrolled. `verify` is idempotent, and the checkout handler calls it immediately. Add the webhook right after the MVP.
 - No rate limiting on auth routes.
 
+### Phase 2 status
+Done in Phase 2 (see `docs/phase2-prompts.md`): Razorpay webhook, email verification, forgot/reset password, rate limiting, logout token blacklist (MongoDB, no Redis), account deletion, orphan upload cleanup. Still deferred: Google sign-in, Redis, avatar upload, admin API/UI, progress tracking, Q&A tab, lecture reordering/sections, Docker/compose, tests/CI, SEO beyond basic metadata, all of v2.
+
 ## 4. Decisions that differ from the spec
 
 | Spec | MVP | Why |

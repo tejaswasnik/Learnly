@@ -22,7 +22,10 @@ npm run dev                  # http://localhost:3000
 | `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT` | Thumbnails, direct video upload, signed URLs |
 | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | Checkout (use `rzp_test_` keys) |
 | `RAZORPAY_WEBHOOK_SECRET` | Verifies webhook deliveries (a different secret from the key secret) |
-| `APP_URL` | Public origin, used for sitemap and metadata |
+| `APP_URL` | Public origin, used for sitemap, metadata and every link in emails |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Transactional email through Resend. **Required in production**; in development leave `RESEND_API_KEY` empty and emails (with their links) are printed to the server console |
+| `CRON_SECRET` | Bearer secret for the scheduled upload cleanup (16+ characters) |
+| `DNS_SERVERS` | Optional. Only if `querySrv ECONNREFUSED` appears locally; leave unset in production |
 
 Commands: `npm run dev`, `npm run build`, `npm start`, `npm run lint`. Health check: `GET /health`.
 
@@ -31,6 +34,17 @@ Commands: `npm run dev`, `npm run build`, `npm start`, `npm run lint`. Health ch
 - `components/` UI (`ui/`, `landing/`, `course/`, `instructor/`, `student/`, `player/`, `profile/`)
 - `lib/server/` config, db, auth, validators, services (courses, lectures, enrollment, imagekit, razorpay); `lib/client/`; `lib/shared/`
 - `models/` Mongoose models; `proxy.js` route guards; `docs/` specs; `landing-page/` original HTML reference
+
+## Email verification and password reset
+New accounts get a verification email (link valid 24 h, works once). Until verified, a user can browse, sign in and watch what they already own, but **cannot buy or enroll (including free courses), create a course or publish one**; the API answers 403 "Verify your email first" and a banner offers to resend (60 s cooldown, 3 per hour). Admins are exempt.
+
+"Forgot password?" on the login page emails a reset link (valid 1 h, works once; asking again invalidates the previous link). The response is identical whether or not the account exists. Resetting signs out every session, sends a "your password was changed" notice and also marks the email verified. Tokens are stored only as SHA-256 hashes.
+
+**Upgrading an existing database:** accounts created before email verification would all be treated as unverified. Run once:
+```bash
+MONGO_URI="your-connection-string" node scripts/mark-existing-users-verified.mjs
+```
+It only touches users that have no `emailVerified` field, so running it again changes nothing.
 
 ## Webhook setup
 The webhook enrolls students who paid but closed the tab before checkout verification ran.
@@ -74,7 +88,7 @@ Lecture videos go from the browser straight to ImageKit before the lecture is sa
 1. Register as an **instructor**, create a course with a thumbnail, add lectures (upload a video, or paste a YouTube link) and mark one as a free preview.
 2. Turn **Published** on in the instructor dashboard.
 3. Register as a **student**, find the course in the catalog, watch the free preview.
-4. Buy it with Razorpay test checkout (or enroll if free); the card flips to **Start Course**.
+4. Verify the email address from the link in the verification email (console output in development). Then buy with Razorpay test checkout (or enroll if free); the card flips to **Start Course**.
 5. Watch every lecture in the player. Buying again is blocked.
 
 ## Known limitations
@@ -83,3 +97,13 @@ Lecture videos go from the browser straight to ImageKit before the lecture is sa
 - No Google sign-in.
 - Player uses native video controls; YouTube lectures do not auto-advance.
 - Prices are INR, USD or EUR.
+- No refunds, avatars, lecture progress or admin panel.
+- A paid order that Razorpay never confirms (no webhook, no checkout verification) stays `created`; there is no reconciliation job.
+
+## Not yet verified against real services
+Phase 2 was built and tested against local mocks (in-memory MongoDB, a mock ImageKit server, signed webhook payloads, console email). These have **not** been run for real and should be checked before launch:
+- A Razorpay test payment delivered by a real webhook through a public HTTPS URL, including closing the tab before checkout verification.
+- A real verification and reset email through Resend (domain verification, spam placement).
+- Real ImageKit behavior for orphan cleanup (list pagination, `createdAt` values) and for deleting files during account deletion; start with a dry run.
+- Rate limiting behind the production proxy, to confirm it forwards the real client IP in `x-forwarded-for`.
+- Browser upload of lecture videos straight to ImageKit and real Razorpay checkout (unchanged from the MVP, still mock-only here).
