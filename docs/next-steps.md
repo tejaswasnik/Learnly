@@ -1,0 +1,11 @@
+# Next steps
+- Razorpay webhook so paid-but-disconnected students are enrolled
+- Email verification and password reset
+- Redis-backed rate limiting and token blacklist
+- Account deletion
+- User avatars
+- Lecture progress tracking and resume
+- Cleanup of orphaned ImageKit uploads
+- Docker setup with a MongoDB replica set
+- Automated tests and CI
+- Admin panel
