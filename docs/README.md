@@ -23,7 +23,7 @@ npm run dev                  # http://localhost:3000
 | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | Checkout (use `rzp_test_` keys) |
 | `RAZORPAY_WEBHOOK_SECRET` | Verifies webhook deliveries (a different secret from the key secret) |
 | `APP_URL` | Public origin, used for sitemap, metadata and every link in emails |
-| `RESEND_API_KEY`, `EMAIL_FROM` | Transactional email through Resend. **Required in production**; in development leave `RESEND_API_KEY` empty and emails (with their links) are printed to the server console |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM` | Transactional email over SMTP (nodemailer). `SMTP_HOST` and `EMAIL_FROM` are **required in production**; `SMTP_USER` and `SMTP_PASS` go together (leave both empty for a relay that needs no login). `SMTP_PORT` defaults to 587 and `SMTP_SECURE` to true only on port 465. In development leave `SMTP_HOST` empty and emails (with their links) are printed to the server console |
 | `CRON_SECRET` | Bearer secret for the scheduled upload cleanup (16+ characters) |
 | `DNS_SERVERS` | Optional. Only if `querySrv ECONNREFUSED` appears locally; leave unset in production |
 
@@ -103,7 +103,7 @@ Lecture videos go from the browser straight to ImageKit before the lecture is sa
 ## Not yet verified against real services
 Phase 2 was built and tested against local mocks (in-memory MongoDB, a mock ImageKit server, signed webhook payloads, console email). These have **not** been run for real and should be checked before launch:
 - A Razorpay test payment delivered by a real webhook through a public HTTPS URL, including closing the tab before checkout verification.
-- A real verification and reset email through Resend (domain verification, spam placement).
+- A real verification and reset email through your SMTP provider (authentication, TLS mode, sender domain SPF/DKIM, spam placement).
 - Real ImageKit behavior for orphan cleanup (list pagination, `createdAt` values) and for deleting files during account deletion; start with a dry run.
 - Rate limiting behind the production proxy, to confirm it forwards the real client IP in `x-forwarded-for`.
 - Browser upload of lecture videos straight to ImageKit and real Razorpay checkout (unchanged from the MVP, still mock-only here).

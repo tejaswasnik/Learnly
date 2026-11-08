@@ -22,7 +22,7 @@ Phase 2 makes Learnly safe to put in front of real users and real payments. It c
 
 | Topic | Decision |
 |---|---|
-| Email provider | Resend over its REST API (plain `fetch`, no SDK). `RESEND_API_KEY` and `EMAIL_FROM` are required in production. Outside production, with no key, emails are printed to the server console. |
+| Email provider | SMTP through nodemailer (changed from Resend after Prompt 2 was built). `SMTP_HOST` and `EMAIL_FROM` are required in production; `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` configure the connection. Outside production, with no `SMTP_HOST`, emails are printed to the server console. |
 | Unverified users | May sign in and browse. May **not** buy or enroll (including free courses), create a course, or publish a course. Those return 403 "Verify your email first". |
 | Existing accounts | A one-off script marks every user created before Phase 2 as verified. |
 | Rate limiting | MongoDB fixed-window counters with a TTL index. Fails open (logs, allows) if the database errors. |
