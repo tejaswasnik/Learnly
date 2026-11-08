@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/server/auth";
 import { connectDb } from "@/lib/server/db";
 import { HttpError, ok, parseBody, withErrors } from "@/lib/server/http";
-import { enrollUser } from "@/lib/server/services/enrollment";
+import { settleOrder } from "@/lib/server/services/payments";
 import { verifySignature } from "@/lib/server/services/razorpay";
 import { verifyPaymentSchema } from "@/lib/server/validators/payment";
 import { Order } from "@/models/order";
@@ -19,8 +19,8 @@ export const POST = withErrors(async (req) => {
 
   // Already paid: succeed again (and make sure the enrollment exists), so retries are harmless.
   if (order.status === "paid") {
-    await enrollUser({ userId: user._id, courseId: order.courseId, orderId: order._id });
-    return ok({ courseId: String(order.courseId) });
+    const { courseId } = await settleOrder({ order, paymentId: order.razorpayPaymentId });
+    return ok({ courseId });
   }
 
   if (!verifySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature)) {
@@ -28,11 +28,6 @@ export const POST = withErrors(async (req) => {
     throw new HttpError(400, "Payment verification failed");
   }
 
-  order.status = "paid";
-  order.razorpayPaymentId = razorpay_payment_id;
-  order.razorpaySignature = razorpay_signature;
-  await order.save();
-  await enrollUser({ userId: user._id, courseId: order.courseId, orderId: order._id });
-
-  return ok({ courseId: String(order.courseId) });
+  const { courseId } = await settleOrder({ order, paymentId: razorpay_payment_id, signature: razorpay_signature });
+  return ok({ courseId });
 });
