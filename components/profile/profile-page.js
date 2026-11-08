@@ -12,7 +12,7 @@ import { PasswordField } from "@/components/ui/password-field";
 import { TextField } from "@/components/ui/text-field";
 import { api } from "@/lib/client/api";
 import { notify } from "@/lib/client/notify";
-import { changePasswordSchema } from "@/lib/server/validators/auth";
+import { changePasswordSchema, setPasswordSchema } from "@/lib/server/validators/auth";
 import { updateNameSchema } from "@/lib/server/validators/user";
 
 const ROLE_LABEL = { student: "Student", instructor: "Instructor", admin: "Admin" };
@@ -43,6 +43,7 @@ export function ProfilePage() {
   const [savingPw, setSavingPw] = useState(false);
 
   const nameChanged = name.trim() !== user.name;
+  const hasPassword = user.hasPassword !== false;
 
   async function saveName(e) {
     e.preventDefault();
@@ -67,9 +68,11 @@ export function ProfilePage() {
 
   async function savePassword(e) {
     e.preventDefault();
-    const base = changePasswordSchema.safeParse({ currentPassword: pw.currentPassword, newPassword: pw.newPassword });
+    const base = hasPassword
+      ? changePasswordSchema.safeParse({ currentPassword: pw.currentPassword, newPassword: pw.newPassword })
+      : setPasswordSchema.safeParse({ newPassword: pw.newPassword });
     const found = base.success ? {} : firstIssues(base.error);
-    if (!pw.currentPassword) found.currentPassword = "Enter your current password.";
+    if (hasPassword && !pw.currentPassword) found.currentPassword = "Enter your current password.";
     if (!found.newPassword && pw.confirm !== pw.newPassword) found.confirm = "The passwords don’t match.";
     if (Object.keys(found).length > 0) {
       setPwErrors(found);
@@ -78,7 +81,11 @@ export function ProfilePage() {
     setPwErrors({});
     setSavingPw(true);
     try {
-      await api("/users/me/password", { method: "PATCH", body: { currentPassword: pw.currentPassword, newPassword: pw.newPassword } });
+      const res = await api("/users/me/password", {
+        method: "PATCH",
+        body: hasPassword ? { currentPassword: pw.currentPassword, newPassword: pw.newPassword } : { newPassword: pw.newPassword },
+      });
+      setUser(res.user); // a Google-only account now has a password
       setPw({ currentPassword: "", newPassword: "", confirm: "" });
       notify.success("Password updated", "Your other devices have been signed out.");
     } catch (err) {
@@ -139,16 +146,20 @@ export function ProfilePage() {
         </div>
       </Card>
 
-      <Card title="Change password">
+      <Card title={hasPassword ? "Change password" : "Set a password"}>
         <form onSubmit={savePassword} noValidate className="flex flex-col gap-6">
-          <PasswordField
-            id="currentPassword"
-            label="Current password"
-            autoComplete="current-password"
-            value={pw.currentPassword}
-            onChange={setField("currentPassword")}
-            error={pwErrors.currentPassword}
-          />
+          {hasPassword ? (
+            <PasswordField
+              id="currentPassword"
+              label="Current password"
+              autoComplete="current-password"
+              value={pw.currentPassword}
+              onChange={setField("currentPassword")}
+              error={pwErrors.currentPassword}
+            />
+          ) : (
+            <p className="text-muted">You signed up with Google, so you don’t have a password yet. Set one if you also want to log in with your email.</p>
+          )}
           <PasswordField
             id="newPassword"
             label="New password"

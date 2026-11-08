@@ -25,6 +25,7 @@ npm run dev                  # http://localhost:3000
 | `APP_URL` | Public origin, used for sitemap, metadata and every link in emails |
 | `GMAIL_USER`, `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN`, `EMAIL_FROM` | Email through Gmail with OAuth 2.0 (nodemailer), see **Email setup**. The four `GMAIL_*` values go together and are **required in production**; `EMAIL_FROM` is optional and defaults to `Learnly <GMAIL_USER>`. In development leave them empty and emails (with their links) are printed to the server console |
 | `CRON_SECRET` | Bearer secret for the scheduled upload cleanup (16+ characters) |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Optional. Enables Sign in with Google, see **Sign in with Google**. Set both or neither; without them the button is hidden and the routes answer 404 |
 | `DNS_SERVERS` | Optional. Only if `querySrv ECONNREFUSED` appears locally; leave unset in production |
 
 Commands: `npm run dev`, `npm run build`, `npm start`, `npm run lint`. Health check: `GET /health`.
@@ -88,6 +89,21 @@ The Razorpay webhook and `/health` are not limited. IP limits use the first valu
 
 Logout stores the token's id (`jti`) in the `revokedtokens` collection until the token would have expired, so a copied cookie stops working at once.
 
+## Sign in with Google
+Optional. Login and sign-up show a "Continue with Google" button when `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set. Setup (about 5 minutes):
+1. In the [Google Cloud Console](https://console.cloud.google.com/) open **APIs and services, OAuth consent screen**, configure it (External) and publish it. The sign-in scopes (`openid`, `email`, `profile`) need no Google review.
+2. **Credentials, Create OAuth client ID**, type Web application. Add the authorized redirect URI `<APP_URL>/api/auth/google/callback` (for example `http://localhost:3000/api/auth/google/callback`; add the production one too).
+3. Put the client ID and secret in `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
+
+How it behaves:
+- It is the OAuth 2.0 authorization code flow with PKCE (`arctic`). State and the PKCE verifier live in short-lived httpOnly cookies; the state is compared in constant time before anything is exchanged.
+- **Known Google account or email:** the person is signed in. An email match links the Google account and marks the email verified, but only because Google reports that email as verified; an unverified Google email is refused. An email already linked to a different Google account is refused.
+- **Brand-new person:** a screen asks Student or Instructor first. The account is created when they choose (pre-verified, with their Google name). Until then their Google identity waits in a signed cookie that expires after 10 minutes.
+- **Profile photo:** copied into our ImageKit storage (never hot-linked), only from Google's image host, over https, up to 5 MB. If anything fails the account simply has initials.
+- **Password:** Google accounts are created with a random password nobody knows. On the profile they can set one (no "current password" asked) or delete the account with just the confirmation. "Forgot password" also works for them.
+- Deleting the account releases the Google link, so the same Google account can sign up again as a new person.
+- Rate limits: 30 per hour per IP on the start and callback routes, 10 per hour on account creation.
+
 ## Profile photo
 On the profile page a user can upload a JPEG, PNG or WebP photo (up to 5 MB; type and file signature are checked on the server) or remove it. The photo is stored in ImageKit under `/avatars`, shown in the navbar and on course pages (ImageKit resizes it), and the old file is deleted when it is replaced or removed. Without a photo the UI shows initials. API: `PATCH /api/users/me` accepts JSON `{name}` or multipart with `name` and/or `avatar`; `DELETE /api/users/me/avatar` removes it.
 
@@ -112,7 +128,6 @@ Lecture videos go from the browser straight to ImageKit before the lecture is sa
 ## Known limitations
 - Rate limiting is a fixed window stored in MongoDB and fails open if the database errors. It is per client IP, so the host must overwrite `x-forwarded-for` (see Rate limits).
 - Sessions issued before the logout blacklist existed have no token id and cannot be revoked by logout; they expire within 7 days.
-- No Google sign-in.
 - Player uses native video controls; YouTube lectures do not auto-advance.
 - Prices are INR, USD or EUR.
 - No refunds, lecture progress or admin panel.
@@ -122,6 +137,7 @@ Lecture videos go from the browser straight to ImageKit before the lecture is sa
 Phase 2 was built and tested against local mocks (in-memory MongoDB, a mock ImageKit server, signed webhook payloads, console email). These have **not** been run for real and should be checked before launch:
 - A Razorpay test payment delivered by a real webhook through a public HTTPS URL, including closing the tab before checkout verification.
 - A real verification and reset email sent through Gmail OAuth 2.0 (token exchange, `https://mail.google.com/` scope, the 7-day Testing-mode expiry, sender and spam placement).
+- A real Sign in with Google round trip (consent screen, redirect URI, token exchange, the real ID token and profile photo URL).
 - Real ImageKit behavior for orphan cleanup (list pagination, `createdAt` values) and for deleting files during account deletion; start with a dry run.
 - Rate limiting behind the production proxy, to confirm it forwards the real client IP in `x-forwarded-for`.
 - Browser upload of lecture videos straight to ImageKit and real Razorpay checkout (unchanged from the MVP, still mock-only here).

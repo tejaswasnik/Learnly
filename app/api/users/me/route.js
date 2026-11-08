@@ -36,8 +36,11 @@ export const DELETE = withRateLimit([{ name: "delete-account", limit: 3, windowM
   const { password } = await parseBody(deleteAccountSchema, req);
 
   const user = await User.findById(session._id).select("+password");
-  if (!(await user.comparePassword(password))) {
-    throw new HttpError(400, "Password is incorrect", { password: ["Password is incorrect"] });
+  if (user.passwordSet !== false) {
+    if (!password) throw new HttpError(400, "Enter your password", { password: ["Enter your password"] });
+    if (!(await user.comparePassword(password))) {
+      throw new HttpError(400, "Password is incorrect", { password: ["Password is incorrect"] });
+    }
   }
 
   await deleteAccount(user);

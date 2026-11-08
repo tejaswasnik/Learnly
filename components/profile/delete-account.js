@@ -14,23 +14,26 @@ import { deleteAccountSchema } from "@/lib/server/validators/user";
 // The form owns its own state so typing never re-renders the modal shell (which would re-run its focus handling).
 function DeleteForm({ role, onClose }) {
   const router = useRouter();
-  const { setUser } = useAuth();
+  const { user, setUser } = useAuth();
   const [errors, setErrors] = useState({});
   const [banner, setBanner] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e) {
     e.preventDefault();
-    const parsed = deleteAccountSchema.safeParse(Object.fromEntries(new FormData(e.currentTarget)));
-    if (!parsed.success) {
-      setErrors(Object.fromEntries(parsed.error.issues.map((i) => [i.path[0], i.message]).reverse()));
+    const values = Object.fromEntries(new FormData(e.currentTarget));
+    const parsed = deleteAccountSchema.safeParse(values);
+    const found = parsed.success ? {} : Object.fromEntries(parsed.error.issues.map((i) => [i.path[0], i.message]).reverse());
+    if (user.hasPassword !== false && !values.password) found.password = "Enter your password";
+    if (Object.keys(found).length > 0) {
+      setErrors(found);
       return;
     }
     setErrors({});
     setBanner("");
     setLoading(true);
     try {
-      await api("/users/me", { method: "DELETE", body: parsed.data });
+      await api("/users/me", { method: "DELETE", body: values });
       setUser(null);
       notify.success("Account deleted", "Your personal details have been removed.");
       router.replace("/");
@@ -53,7 +56,9 @@ function DeleteForm({ role, onClose }) {
           {banner}
         </p>
       )}
-      <PasswordField id="deletePassword" name="password" label="Your password" autoComplete="current-password" error={errors.password} />
+      {user.hasPassword !== false && (
+        <PasswordField id="deletePassword" name="password" label="Your password" autoComplete="current-password" error={errors.password} />
+      )}
       {/* id differs from the change-password form's "confirm" field on the same page; name stays "confirm" for the API. */}
       <TextField id="deleteConfirm" name="confirm" label="Type DELETE to confirm" autoComplete="off" error={errors.confirm} />
       <div className="flex justify-end gap-3">

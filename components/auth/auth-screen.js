@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/lib/client/api";
 import { useAuth } from "@/components/providers";
+import { GoogleButton } from "@/components/auth/google-button";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
 import { RadioCard } from "@/components/ui/radio-card";
 import { TextField } from "@/components/ui/text-field";
+import { GOOGLE_ERRORS } from "@/lib/shared/google-errors";
 import { safeNext } from "@/lib/shared/safe-next";
 import { loginSchema, registerSchema } from "@/lib/server/validators/auth";
 
@@ -35,13 +37,13 @@ function fieldErrors(error) {
   return out;
 }
 
-export function AuthScreen({ mode, next, email, children }) {
+export function AuthScreen({ mode, next, email, googleEnabled = false, errorCode, children }) {
   const isRegister = mode === "register";
   const copy = COPY[mode];
   const router = useRouter();
   const { setUser } = useAuth();
   const [errors, setErrors] = useState({});
-  const [banner, setBanner] = useState("");
+  const [banner, setBanner] = useState(GOOGLE_ERRORS[errorCode] ?? "");
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState("student");
 
@@ -157,6 +159,15 @@ export function AuthScreen({ mode, next, email, children }) {
             <Button type="submit" size="lg" fullWidth loading={loading}>
               {copy.submit}
             </Button>
+
+            {googleEnabled && (
+              <>
+                <p aria-hidden="true" className="flex items-center gap-4 text-small text-muted before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+                  or
+                </p>
+                <GoogleButton next={next} label={isRegister ? "Sign up with Google" : "Continue with Google"} />
+              </>
+            )}
 
             <p className="flex flex-wrap items-center gap-x-1 text-ink">
               {copy.alt.text}
