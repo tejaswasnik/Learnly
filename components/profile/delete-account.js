@@ -54,7 +54,8 @@ function DeleteForm({ role, onClose }) {
         </p>
       )}
       <PasswordField id="deletePassword" name="password" label="Your password" autoComplete="current-password" error={errors.password} />
-      <TextField id="confirm" label="Type DELETE to confirm" autoComplete="off" error={errors.confirm} />
+      {/* id differs from the change-password form's "confirm" field on the same page; name stays "confirm" for the API. */}
+      <TextField id="deleteConfirm" name="confirm" label="Type DELETE to confirm" autoComplete="off" error={errors.confirm} />
       <div className="flex justify-end gap-3">
         <Button variant="secondary" onClick={onClose}>
           Cancel

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers";
 import { ButtonLink } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
@@ -9,7 +8,6 @@ import { api } from "@/lib/client/api";
 
 /** Landing page for the emailed link: consumes the token once on mount and reports the result. */
 export function VerifyEmail({ token }) {
-  const router = useRouter();
   const { user, setUser } = useAuth();
   const [state, setState] = useState(token ? { phase: "working" } : { phase: "error", message: "This link is invalid or has expired" });
   const started = useRef(false);
@@ -22,11 +20,11 @@ export function VerifyEmail({ token }) {
     api("/auth/verify-email", { method: "POST", body: { token } })
       .then((data) => {
         setState({ phase: "done" });
+        // Updating the shared user hides the banner at once. No router.refresh(): it would put the token back in the address bar.
         setUser((current) => (current && current.id === data.user.id ? data.user : current));
-        router.refresh();
       })
       .catch((err) => setState({ phase: "error", message: err.message }));
-  }, [token, router, setUser]);
+  }, [token, setUser]);
 
   const home = user ? (user.role === "instructor" ? "/instructor/dashboard" : "/dashboard") : "/login";
 
