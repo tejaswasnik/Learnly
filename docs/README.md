@@ -62,6 +62,14 @@ Logout stores the token's id (`jti`) in the `revokedtokens` collection until the
 ## Account deletion
 Profile, Danger zone: the user confirms with their password and by typing `DELETE`. The account is **anonymized, not deleted**: name, email, avatar and sign-in are removed (the email is replaced by `deleted-<id>@learnly.invalid`), every session stops working, and the original address can register again as a new account. **Orders and enrollments are kept** because they are payment records. An instructor can delete only if none of their courses has students; their courses, lectures and ImageKit files are then removed. Otherwise the request fails with 409 and nothing changes. Admin accounts cannot be deleted this way.
 
+## Orphan cleanup
+Lecture videos go from the browser straight to ImageKit before the lecture is saved, so an abandoned form leaves an orphan file. `POST /api/internal/cleanup-uploads` finds files in `/lectures` and `/courses` that no lecture or course references and are older than 24 hours.
+- Auth: `Authorization: Bearer $CRON_SECRET` (set `CRON_SECRET` to a long random string). No cookie access.
+- **Dry run by default**: it only reports `{ scanned, referenced, orphans, deleted, skippedRecent, truncated }`. Run that first and read the numbers.
+- `?apply=true` deletes, at most 100 files per run (`&max=N`, up to 500). If `truncated` is true, run again.
+- A second run started while one is active gets 409.
+- Schedule it daily with anything that can send an authenticated POST (your host's cron, GitHub Actions, cron-job.org), for example `curl -X POST -H "Authorization: Bearer $CRON_SECRET" "$APP_URL/api/internal/cleanup-uploads?apply=true"`.
+
 ## Demo script
 1. Register as an **instructor**, create a course with a thumbnail, add lectures (upload a video, or paste a YouTube link) and mark one as a free preview.
 2. Turn **Published** on in the instructor dashboard.
@@ -70,7 +78,6 @@ Profile, Danger zone: the user confirms with their password and by typing `DELET
 5. Watch every lecture in the player. Buying again is blocked.
 
 ## Known limitations
-- Uploaded videos that are never attached to a saved lecture stay in ImageKit (no cleanup job).
 - Rate limiting is a fixed window stored in MongoDB and fails open if the database errors. It is per client IP, so the host must overwrite `x-forwarded-for` (see Rate limits).
 - Sessions issued before the logout blacklist existed have no token id and cannot be revoked by logout; they expire within 7 days.
 - No Google sign-in.
