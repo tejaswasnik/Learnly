@@ -120,6 +120,14 @@ export function AuthScreen({ mode, next, email, children }) {
                 helper={isRegister ? "Use at least 8 characters." : undefined}
                 error={errors.password}
               />
+              {!isRegister && (
+                <Link
+                  href="/forgot-password"
+                  className="-mt-3 inline-flex h-11 items-center self-start rounded-xs px-1 text-small font-semibold underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-accent-light"
+                >
+                  Forgot password?
+                </Link>
+              )}
             </div>
 
             {isRegister && (

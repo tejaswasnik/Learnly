@@ -50,6 +50,6 @@ Deliveries whose signature does not match, or whose amount or currency differs f
 ## Known limitations
 - Uploaded videos that are never attached to a saved lecture stay in ImageKit (no cleanup job).
 - No rate limiting.
-- No email verification, password reset, Google sign-in or account deletion.
+- No Google sign-in or account deletion.
 - Player uses native video controls; YouTube lectures do not auto-advance.
 - Prices are INR, USD or EUR.
