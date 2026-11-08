@@ -1,6 +1,7 @@
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
 import { Providers } from "@/components/providers";
+import { siteUrl } from "@/lib/server/site-url";
 import { getCurrentUser, publicUser } from "@/lib/server/auth";
 import "./globals.css";
 
@@ -11,9 +12,15 @@ const bricolage = localFont({
   display: "swap",
 });
 
+const DESCRIPTION =
+  "Learnly is a course marketplace: instructors publish video courses, students buy them with Razorpay and watch every lecture in one player.";
+
 export const metadata = {
-  title: "Learnly",
-  description: "Learn from the best. Teach what you know.",
+  metadataBase: new URL(siteUrl()),
+  title: { default: "Learnly", template: "%s · Learnly" },
+  description: DESCRIPTION,
+  openGraph: { siteName: "Learnly", type: "website", title: "Learnly", description: DESCRIPTION },
+  twitter: { card: "summary" },
 };
 
 export default async function RootLayout({ children }) {

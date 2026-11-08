@@ -35,7 +35,7 @@ function fieldErrors(error) {
   return out;
 }
 
-export function AuthScreen({ mode, next, children }) {
+export function AuthScreen({ mode, next, email, children }) {
   const isRegister = mode === "register";
   const copy = COPY[mode];
   const router = useRouter();
@@ -109,6 +109,7 @@ export function AuthScreen({ mode, next, children }) {
                 type="email"
                 autoComplete="email"
                 placeholder="you@example.com"
+                defaultValue={email}
                 error={errors.email}
               />
               <TextField
