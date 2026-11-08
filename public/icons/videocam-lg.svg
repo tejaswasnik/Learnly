@@ -1,0 +1,5 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="videocam">
+<path id="icon" d="M3 40C2.2 40 1.5 39.625 0.9 38.875C0.3 38.125 0 37.25 0 36.25V3.75C0 2.75 0.3 1.875 0.9 1.125C1.5 0.375 2.2 0 3 0H29C29.8 0 30.5 0.375 31.1 1.125C31.7 1.875 32 2.75 32 3.75V17.1875L40 7.1875V32.8125L32 22.8125V36.25C32 37.25 31.7 38.125 31.1 38.875C30.5 39.625 29.8 40 29 40H3ZM3 36.25H29V3.75H3V36.25Z" fill="#9A9A9A"/>
+</g>
+</svg>
