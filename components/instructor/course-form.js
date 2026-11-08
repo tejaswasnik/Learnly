@@ -54,7 +54,11 @@ export function CourseForm({ course }) {
   const [banner, setBanner] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const set = (name) => (e) => setValues((v) => ({ ...v, [name]: e.target.value }));
+  // Editing a field clears its own error straight away; the others stay until the next submit.
+  const set = (name) => (e) => {
+    setValues((v) => ({ ...v, [name]: e.target.value }));
+    setErrors((prev) => (prev[name] ? { ...prev, [name]: undefined } : prev));
+  };
 
   const previewPrice = formatPriceExact(values.price, values.currency);
   const [blobUrl, setBlobUrl] = useState(null);

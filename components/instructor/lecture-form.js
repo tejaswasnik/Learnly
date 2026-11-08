@@ -53,6 +53,8 @@ export function LectureForm({ course, lecture }) {
   const [errors, setErrors] = useState({});
   const [banner, setBanner] = useState("");
   const [saving, setSaving] = useState(false);
+  // Typing in a field clears that field's error right away; the others stay until the next submit.
+  const clearError = (key) => setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
   const abortRef = useRef(null);
   const fileRef = useRef(null);
 
@@ -203,7 +205,10 @@ export function LectureForm({ course, lecture }) {
             placeholder="e.g. Components and props"
             helper="Up to 120 characters."
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              clearError("lectureTitle");
+            }}
             error={errors.lectureTitle}
             maxLength={120}
           />
@@ -258,7 +263,10 @@ export function LectureForm({ course, lecture }) {
                 placeholder="https://www.youtube.com/watch?v=…"
                 helper="YouTube and other links are supported."
                 value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
+                onChange={(e) => {
+                  setVideoUrl(e.target.value);
+                  clearError("videoUrl");
+                }}
                 error={errors.videoUrl}
               />
               <div className="grid grid-cols-2 gap-4">
@@ -269,7 +277,10 @@ export function LectureForm({ course, lecture }) {
                   placeholder="0"
                   helper="Whole minutes."
                   value={minutes}
-                  onChange={(e) => setMinutes(e.target.value)}
+                  onChange={(e) => {
+                    setMinutes(e.target.value);
+                    clearError("minutes");
+                  }}
                   error={errors.minutes}
                 />
                 <TextField
@@ -279,7 +290,10 @@ export function LectureForm({ course, lecture }) {
                   placeholder="0"
                   helper="0 to 59."
                   value={seconds}
-                  onChange={(e) => setSeconds(e.target.value)}
+                  onChange={(e) => {
+                    setSeconds(e.target.value);
+                    clearError("seconds");
+                  }}
                   error={errors.seconds}
                 />
               </div>
