@@ -1,14 +1,29 @@
 import { clearSessionCookie, publicUser, requireUser, revokeSessionToken } from "@/lib/server/auth";
+import { readMultipart } from "@/lib/server/form";
 import { HttpError, ok, parseBody, withErrors } from "@/lib/server/http";
 import { deleteAccount } from "@/lib/server/services/account";
+import { setAvatar } from "@/lib/server/services/avatar";
 import { HOUR, withRateLimit } from "@/lib/server/services/rate-limit";
+import { validateImageFile } from "@/lib/server/validators/image";
 import { deleteAccountSchema, updateNameSchema } from "@/lib/server/validators/user";
 import { User } from "@/models/user";
 
 export const runtime = "nodejs";
 
-export const PATCH = withErrors(async (req) => {
+export const PATCH = withRateLimit([{ name: "update-profile", limit: 30, windowMs: HOUR, by: "user" }], async (req) => {
   const user = await requireUser(req);
+
+  if (req.headers.get("content-type")?.includes("multipart/form-data")) {
+    const { fields, file } = await readMultipart(req, "avatar");
+    if (!file && fields.name === undefined) throw new HttpError(400, "Send a name, an avatar, or both");
+    const name = fields.name === undefined ? undefined : updateNameSchema.parse({ name: fields.name }).name;
+    const image = file ? await validateImageFile(file) : null; // validate everything before changing anything
+    if (name !== undefined) user.name = name;
+    if (image) await setAvatar(user, image);
+    else await user.save();
+    return ok({ user: publicUser(user) });
+  }
+
   const { name } = await parseBody(updateNameSchema, req);
   user.name = name;
   await user.save();

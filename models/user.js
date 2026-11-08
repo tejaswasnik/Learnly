@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, select: false },
     role: { type: String, enum: ALL_ROLES, default: "student" },
     photourl: { type: String, default: DEFAULT_AVATAR_URL },
+    // ImageKit file id of an uploaded avatar, so it can be deleted on replace, remove and account deletion.
+    avatarFileId: { type: String },
     tokenVersion: { type: Number, default: 0 },
     emailVerified: { type: Boolean, default: false },
     emailVerifiedAt: { type: Date },

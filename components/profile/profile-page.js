@@ -4,6 +4,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { useAuth } from "@/components/providers";
 import { Avatar } from "@/components/avatar";
+import { AvatarUpload } from "@/components/profile/avatar-upload";
 import { DeleteAccount } from "@/components/profile/delete-account";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -96,7 +97,7 @@ export function ProfilePage() {
 
       <Card title="Account">
         <div className="flex items-center gap-4">
-          <Avatar name={user.name} size="lg" />
+          <Avatar name={user.name} photourl={user.photourl} size="lg" />
           <div className="flex flex-col gap-2">
             <p className="font-semibold">{user.name}</p>
             <span className="inline-flex w-fit items-center rounded-full bg-t1 px-3 py-1 text-small text-accent-light">
@@ -104,6 +105,8 @@ export function ProfilePage() {
             </span>
           </div>
         </div>
+
+        <AvatarUpload />
 
         <form onSubmit={saveName} noValidate className="flex flex-col gap-3 sm:flex-row sm:items-start">
           <div className="min-w-0 flex-1">

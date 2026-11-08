@@ -72,7 +72,7 @@ function AccountMenu() {
         onClick={() => setOpen((v) => !v)}
         className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light"
       >
-        <Avatar name={user.name} size="md" />
+        <Avatar name={user.name} photourl={user.photourl} size="md" />
       </button>
       {open && (
         <div role="menu" className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-base border border-border bg-surface py-1 shadow-lg">

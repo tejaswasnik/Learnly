@@ -1,3 +1,5 @@
+import { avatarSrc } from "@/lib/shared/avatar";
+
 const SIZES = {
   sm: "size-8 text-small",
   md: "size-10 text-small",
@@ -11,14 +13,21 @@ export function initialsOf(name = "") {
   return letters.toUpperCase();
 }
 
-// Initials only: the MVP has no avatar uploads (see Avatar in 02 Components).
-export function Avatar({ name = "", size = "md", className = "" }) {
+// The uploaded photo when there is one (resized by ImageKit), otherwise initials.
+export function Avatar({ name = "", photourl, size = "md", className = "" }) {
+  const src = avatarSrc(photourl, size === "lg" ? 160 : 96);
   return (
     <span
       aria-hidden="true"
-      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-t2 text-ink ${SIZES[size]} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-t2 text-ink ${SIZES[size]} ${className}`}
     >
-      {initialsOf(name)}
+      {src ? (
+        // A plain img on purpose: ImageKit already resizes, and avatars are tiny.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt="" className="size-full object-cover" />
+      ) : (
+        initialsOf(name)
+      )}
     </span>
   );
 }

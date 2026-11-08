@@ -80,7 +80,7 @@ export default async function CoursePage({ params }) {
             <h1 className="text-h1 text-ink">{course.courseTitle}</h1>
             {course.subTitle && <p className="text-ink">{course.subTitle}</p>}
             <p className="flex items-center gap-3 font-semibold">
-              <Avatar name={course.creator.name} size="md" />
+              <Avatar name={course.creator.name} photourl={course.creator.photourl} size="md" />
               {course.creator.name}
             </p>
             <p className="text-muted">{meta.join(" · ")}</p>
@@ -110,7 +110,7 @@ export default async function CoursePage({ params }) {
               Your instructor
             </h2>
             <div className="flex items-center gap-4">
-              <Avatar name={course.creator.name} size="lg" />
+              <Avatar name={course.creator.name} photourl={course.creator.photourl} size="lg" />
               <p className="font-semibold">{course.creator.name}</p>
             </div>
           </section>

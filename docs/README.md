@@ -88,11 +88,14 @@ The Razorpay webhook and `/health` are not limited. IP limits use the first valu
 
 Logout stores the token's id (`jti`) in the `revokedtokens` collection until the token would have expired, so a copied cookie stops working at once.
 
+## Profile photo
+On the profile page a user can upload a JPEG, PNG or WebP photo (up to 5 MB; type and file signature are checked on the server) or remove it. The photo is stored in ImageKit under `/avatars`, shown in the navbar and on course pages (ImageKit resizes it), and the old file is deleted when it is replaced or removed. Without a photo the UI shows initials. API: `PATCH /api/users/me` accepts JSON `{name}` or multipart with `name` and/or `avatar`; `DELETE /api/users/me/avatar` removes it.
+
 ## Account deletion
-Profile, Danger zone: the user confirms with their password and by typing `DELETE`. The account is **anonymized, not deleted**: name, email, avatar and sign-in are removed (the email is replaced by `deleted-<id>@learnly.invalid`), every session stops working, and the original address can register again as a new account. **Orders and enrollments are kept** because they are payment records. An instructor can delete only if none of their courses has students; their courses, lectures and ImageKit files are then removed. Otherwise the request fails with 409 and nothing changes. Admin accounts cannot be deleted this way.
+Profile, Danger zone: the user confirms with their password and by typing `DELETE`. The account is **anonymized, not deleted**: name, email, avatar (the ImageKit file is deleted too) and sign-in are removed (the email is replaced by `deleted-<id>@learnly.invalid`), every session stops working, and the original address can register again as a new account. **Orders and enrollments are kept** because they are payment records. An instructor can delete only if none of their courses has students; their courses, lectures and ImageKit files are then removed. Otherwise the request fails with 409 and nothing changes. Admin accounts cannot be deleted this way.
 
 ## Orphan cleanup
-Lecture videos go from the browser straight to ImageKit before the lecture is saved, so an abandoned form leaves an orphan file. `POST /api/internal/cleanup-uploads` finds files in `/lectures` and `/courses` that no lecture or course references and are older than 24 hours.
+Lecture videos go from the browser straight to ImageKit before the lecture is saved, so an abandoned form leaves an orphan file. `POST /api/internal/cleanup-uploads` finds files in `/lectures`, `/courses` and `/avatars` that no lecture, course or user references and are older than 24 hours.
 - Auth: `Authorization: Bearer $CRON_SECRET` (set `CRON_SECRET` to a long random string). No cookie access.
 - **Dry run by default**: it only reports `{ scanned, referenced, orphans, deleted, skippedRecent, truncated }`. Run that first and read the numbers.
 - `?apply=true` deletes, at most 100 files per run (`&max=N`, up to 500). If `truncated` is true, run again.
@@ -112,7 +115,7 @@ Lecture videos go from the browser straight to ImageKit before the lecture is sa
 - No Google sign-in.
 - Player uses native video controls; YouTube lectures do not auto-advance.
 - Prices are INR, USD or EUR.
-- No refunds, avatars, lecture progress or admin panel.
+- No refunds, lecture progress or admin panel.
 - A paid order that Razorpay never confirms (no webhook, no checkout verification) stays `created`; there is no reconciliation job.
 
 ## Not yet verified against real services
