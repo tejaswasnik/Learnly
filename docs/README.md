@@ -59,6 +59,9 @@ The Razorpay webhook and `/health` are not limited. IP limits use the first valu
 
 Logout stores the token's id (`jti`) in the `revokedtokens` collection until the token would have expired, so a copied cookie stops working at once.
 
+## Account deletion
+Profile, Danger zone: the user confirms with their password and by typing `DELETE`. The account is **anonymized, not deleted**: name, email, avatar and sign-in are removed (the email is replaced by `deleted-<id>@learnly.invalid`), every session stops working, and the original address can register again as a new account. **Orders and enrollments are kept** because they are payment records. An instructor can delete only if none of their courses has students; their courses, lectures and ImageKit files are then removed. Otherwise the request fails with 409 and nothing changes. Admin accounts cannot be deleted this way.
+
 ## Demo script
 1. Register as an **instructor**, create a course with a thumbnail, add lectures (upload a video, or paste a YouTube link) and mark one as a free preview.
 2. Turn **Published** on in the instructor dashboard.
@@ -70,6 +73,6 @@ Logout stores the token's id (`jti`) in the `revokedtokens` collection until the
 - Uploaded videos that are never attached to a saved lecture stay in ImageKit (no cleanup job).
 - Rate limiting is a fixed window stored in MongoDB and fails open if the database errors. It is per client IP, so the host must overwrite `x-forwarded-for` (see Rate limits).
 - Sessions issued before the logout blacklist existed have no token id and cannot be revoked by logout; they expire within 7 days.
-- No Google sign-in or account deletion.
+- No Google sign-in.
 - Player uses native video controls; YouTube lectures do not auto-advance.
 - Prices are INR, USD or EUR.

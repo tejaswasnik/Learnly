@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema(
     tokenVersion: { type: Number, default: 0 },
     emailVerified: { type: Boolean, default: false },
     emailVerifiedAt: { type: Date },
+    // Set when the account is deleted (anonymized). Orders and enrollments keep pointing at the row.
+    deletedAt: { type: Date },
   },
   { timestamps: true },
 );

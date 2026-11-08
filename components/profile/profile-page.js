@@ -4,6 +4,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { useAuth } from "@/components/providers";
 import { Avatar } from "@/components/avatar";
+import { DeleteAccount } from "@/components/profile/delete-account";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { PasswordField } from "@/components/ui/password-field";
@@ -170,6 +171,8 @@ export function ProfilePage() {
           </div>
         </form>
       </Card>
+
+      <DeleteAccount />
     </main>
   );
 }
