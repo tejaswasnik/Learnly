@@ -23,7 +23,7 @@ npm run dev                  # http://localhost:3000
 | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | Checkout (use `rzp_test_` keys) |
 | `RAZORPAY_WEBHOOK_SECRET` | Verifies webhook deliveries (a different secret from the key secret) |
 | `APP_URL` | Public origin, used for sitemap, metadata and every link in emails |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM` | Transactional email over SMTP (nodemailer). `SMTP_HOST` and `EMAIL_FROM` are **required in production**; `SMTP_USER` and `SMTP_PASS` go together (leave both empty for a relay that needs no login). `SMTP_PORT` defaults to 587 and `SMTP_SECURE` to true only on port 465. In development leave `SMTP_HOST` empty and emails (with their links) are printed to the server console |
+| `GMAIL_USER`, `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN`, `EMAIL_FROM` | Email through Gmail with OAuth 2.0 (nodemailer), see **Email setup**. The four `GMAIL_*` values go together and are **required in production**; `EMAIL_FROM` is optional and defaults to `Learnly <GMAIL_USER>`. In development leave them empty and emails (with their links) are printed to the server console |
 | `CRON_SECRET` | Bearer secret for the scheduled upload cleanup (16+ characters) |
 | `DNS_SERVERS` | Optional. Only if `querySrv ECONNREFUSED` appears locally; leave unset in production |
 
@@ -45,6 +45,21 @@ New accounts get a verification email (link valid 24 h, works once). Until verif
 MONGO_URI="your-connection-string" node scripts/mark-existing-users-verified.mjs
 ```
 It only touches users that have no `emailVerified` field, so running it again changes nothing.
+
+## Email setup (Gmail OAuth 2.0)
+Verification, reset and notice emails are sent through Gmail's SMTP server with OAuth 2.0, so no account password is stored anywhere. One-time setup, about 10 minutes:
+1. In the [Google Cloud Console](https://console.cloud.google.com/) create or pick a project and enable the **Gmail API**.
+2. **OAuth consent screen**: user type External, add the Gmail account that will send the mail. Then **publish the app so its status is "In production"**. While the status is "Testing", Google expires refresh tokens after 7 days and sending stops with `invalid_grant`.
+3. **Credentials, Create OAuth client ID**: type Web application, with the authorized redirect URI `https://developers.google.com/oauthplayground`. Copy the client ID and secret.
+4. Get a refresh token in the [OAuth 2.0 Playground](https://developers.google.com/oauthplayground): open the settings gear, tick "Use your own OAuth credentials" and paste the client ID and secret; for the scope enter `https://mail.google.com/` (SMTP needs this full scope, `gmail.send` is not enough); authorize with the sending account, then "Exchange authorization code for tokens" and copy the **refresh token**.
+5. Set `GMAIL_USER` (the sending address), `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET` and `GMAIL_REFRESH_TOKEN`.
+
+Things to know:
+- Gmail always sends as the authenticated account (or a "Send mail as" alias you set up). A different `EMAIL_FROM` address is rewritten by Gmail.
+- A normal Gmail account allows roughly 500 recipients per day; a Google Workspace account allows more.
+- If emails stop with `invalid_grant` in the server log, the refresh token was revoked or expired (app still in "Testing", access removed in the Google account, or unused for six months). Repeat steps 4 and 5.
+- Google shows an "unverified app" warning during step 4 for the full mail scope. That is expected for your own account.
+- A failed send never blocks sign-up or password reset; the user can resend from the banner.
 
 ## Webhook setup
 The webhook enrolls students who paid but closed the tab before checkout verification ran.
@@ -103,7 +118,7 @@ Lecture videos go from the browser straight to ImageKit before the lecture is sa
 ## Not yet verified against real services
 Phase 2 was built and tested against local mocks (in-memory MongoDB, a mock ImageKit server, signed webhook payloads, console email). These have **not** been run for real and should be checked before launch:
 - A Razorpay test payment delivered by a real webhook through a public HTTPS URL, including closing the tab before checkout verification.
-- A real verification and reset email through your SMTP provider (authentication, TLS mode, sender domain SPF/DKIM, spam placement).
+- A real verification and reset email sent through Gmail OAuth 2.0 (token exchange, `https://mail.google.com/` scope, the 7-day Testing-mode expiry, sender and spam placement).
 - Real ImageKit behavior for orphan cleanup (list pagination, `createdAt` values) and for deleting files during account deletion; start with a dry run.
 - Rate limiting behind the production proxy, to confirm it forwards the real client IP in `x-forwarded-for`.
 - Browser upload of lecture videos straight to ImageKit and real Razorpay checkout (unchanged from the MVP, still mock-only here).
