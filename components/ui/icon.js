@@ -73,6 +73,8 @@ const ICONS = {
   "choice-teach": [Presentation, INK],
   "collapse-all": [ChevronsDownUp, INK],
   "expand-all": [ChevronsUpDown, INK],
+  "complete-off": [Circle, MUTED],
+  "complete-on": [CircleCheck, SUCCESS],
   continue: [ArrowRight, ON_ACCENT],
   delete: [Trash2, DANGER],
   "delete-row": [Trash2, INK],

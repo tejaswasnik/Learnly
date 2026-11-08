@@ -4,7 +4,6 @@ Phase 2 (launch readiness) is built: payment webhook, email verification, passwo
 
 What is left, in suggested order:
 - Automated tests and CI, so the flows above stop depending on manual scripts
-- Lecture progress tracking and resume
 - Admin panel
 - Docker setup with a MongoDB replica set
 - Redis, only if traffic needs it: swap the storage inside `lib/server/services/rate-limit.js` and the revoked-token check in `lib/server/auth.js`

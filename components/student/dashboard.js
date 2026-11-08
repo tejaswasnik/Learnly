@@ -15,6 +15,22 @@ function greetingFor(date) {
 }
 const noSubscribe = () => () => {};
 
+function MiniStat({ label, value, icon }) {
+  return (
+    <div className="flex flex-col gap-2 rounded-base bg-surface p-4">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-small text-muted">{label}</p>
+        <Icon name={icon} size={20} />
+      </div>
+      {value === undefined ? (
+        <div aria-hidden="true" className="h-9 w-12 animate-pulse rounded-xs bg-surface-2" />
+      ) : (
+        <p className="text-h2 tabular-nums text-ink">{value}</p>
+      )}
+    </div>
+  );
+}
+
 export function StudentDashboard() {
   const { user } = useAuth();
   // The greeting depends on the viewer's local clock: the server renders a neutral one, the browser the real one.
@@ -46,16 +62,10 @@ export function StudentDashboard() {
           </h1>
           <p className="text-muted">Pick up where you left off.</p>
         </div>
-        <div className="flex w-full flex-col gap-3 rounded-base bg-surface p-6 md:w-[260px]">
-          <div className="flex items-center justify-between">
-            <p className="text-small text-muted">Courses enrolled</p>
-            <Icon name="stat-enrolled" size={24} />
-          </div>
-          {data ? (
-            <p className="text-h2 tabular-nums text-ink">{data.length}</p>
-          ) : (
-            <div aria-hidden="true" className="h-10 w-16 animate-pulse rounded-xs bg-surface-2" />
-          )}
+        <div className="grid w-full grid-cols-3 gap-3 md:w-[560px]">
+          <MiniStat label="Enrolled" value={data?.length} icon="stat-enrolled" />
+          <MiniStat label="In progress" value={data?.filter((e) => e.progress.percent > 0 && e.progress.percent < 100).length} icon="schedule" />
+          <MiniStat label="Completed" value={data?.filter((e) => e.progress.lectureCount > 0 && e.progress.percent === 100).length} icon="stat-published" />
         </div>
       </header>
 
@@ -91,7 +101,7 @@ export function StudentDashboard() {
           <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {data.map((e) => (
               <li key={e.course.id}>
-                <EnrolledCourseCard course={e.course} />
+                <EnrolledCourseCard course={e.course} progress={e.progress} />
               </li>
             ))}
           </ul>

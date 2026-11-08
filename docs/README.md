@@ -105,6 +105,19 @@ How it behaves:
 - Deleting the account releases the Google link, so the same Google account can sign up again as a new person.
 - Rate limits: 30 per hour per IP on the start and callback routes, 10 per hour on account creation.
 
+## Progress and resume
+Enrolled students tick lectures off in the player (a checkbox beside each lecture, or "Mark as complete" under the title). A lecture **plays to the end** also counts as complete when it is an uploaded video; YouTube lectures cannot report that, so they rely on the checkbox. The player shows "3 of 7 completed" with a bar, the dashboard shows Enrolled, In progress and Completed counts plus a bar on each course card, and reopening a course **resumes at the lecture the student was last on**.
+- Stored on the enrollment as `completedLectureIds` and `lastLectureId`; `progress` (0-100) is kept in step. The percentage shown is always measured against the lectures that exist now, so adding lectures later lowers it and deleting one stops counting it.
+- API: `PATCH /api/enrollments/:courseId/progress` with `{ lectureId, completed?, viewing? }` (completed ticks or unticks, viewing records the resume point). Updates are atomic set operations, so two tabs cannot overwrite each other. `GET /api/lectures/course/:id` returns `progress` (null for the course's own instructor and admins, who are not enrolled), and `GET /api/enrollments/me` returns the numbers for every course.
+
+## Questions and answers
+The player's **Q&A** tab holds questions for the lecture being watched.
+- **Who:** enrolled students, the course's instructor and admins can read and post. Instructor posts carry an "Instructor" badge. Anyone else gets 403.
+- **Posting needs a verified email** (like buying and publishing). Questions are limited to 30 per hour and replies to 60 per hour per user, 2,000 characters each, shown as plain text (never as HTML).
+- **Threads:** a question has replies one level deep (replying to a reply is not possible). Questions are newest first, 20 per page with "Show more"; replies oldest first.
+- **Deleting:** authors can delete their own posts and the instructor can delete any post in their course. Deleting a question deletes its replies. Deleting a lecture or the course deletes its Q&A. If a user deletes their account their posts stay, shown as "Deleted user".
+- API: `GET` and `POST /api/qna/lecture/:lectureId`, `POST /api/qna/:questionId/replies`, `DELETE /api/qna/:postId`.
+
 ## Sections and lecture order
 Instructors can group lectures into **sections** and put both in any order. On the course's lecture page: **Add section**, then rename, delete, or move sections and lectures with the up and down buttons (they work with the keyboard, and screen readers hear where the item ended up). The lecture form has a **Section** field to move a lecture to another section or out of all sections.
 - Order everywhere (course page, player, instructor list, lecture API) is: each section in its order with its own lectures, then lectures with no section last, under the heading "Other lectures". A course with no sections looks exactly as before.
@@ -139,7 +152,7 @@ Lecture videos go from the browser straight to ImageKit before the lecture is sa
 - Sessions issued before the logout blacklist existed have no token id and cannot be revoked by logout; they expire within 7 days.
 - Player uses native video controls; YouTube lectures do not auto-advance.
 - Prices are INR, USD or EUR.
-- No refunds, lecture progress or admin panel.
+- No refunds or admin panel.
 - A paid order that Razorpay never confirms (no webhook, no checkout verification) stays `created`; there is no reconciliation job.
 
 ## Not yet verified against real services

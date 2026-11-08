@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/server/auth";
 import { connectDb } from "@/lib/server/db";
 import { ok, withErrors } from "@/lib/server/http";
+import { progressForEnrollments } from "@/lib/server/services/progress";
 import { Enrollment } from "@/models/enrollment";
 
 export const runtime = "nodejs";
@@ -14,10 +15,14 @@ export const GET = withErrors(async (req) => {
     .populate({ path: "courseId", populate: { path: "creator", select: "name" } })
     .lean();
 
-  const enrollments = rows
-    .filter((r) => r.courseId) // the course may have been removed
+  const live = rows.filter((r) => r.courseId); // the course may have been removed
+  const progress = await progressForEnrollments(live);
+  for (const p of progress.values()) delete p.completedLectureIds; // the dashboard only needs the numbers
+
+  const enrollments = live
     .map((r) => ({
       enrolledAt: r.enrolledAt.toISOString(),
+      progress: progress.get(String(r._id)),
       course: {
         id: String(r.courseId._id),
         courseTitle: r.courseId.courseTitle,
