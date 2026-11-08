@@ -1,12 +1,14 @@
 "use client";
 
-import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { formatPrice } from "@/lib/shared/format";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { formatPrice, formatTotalLength } from "@/lib/shared/format";
 
 // Placeholder purchase flow: replaced by the real Razorpay checkout in Prompt 9.
-export function PurchaseCard({ courseId, price, signedIn, canAccess, lectureCount }) {
+export function PurchaseCard({ courseId, title, thumbnail, price, signedIn, canAccess, lectureCount, totalSeconds }) {
   const router = useRouter();
   const isFree = price.amount === 0;
 
@@ -18,28 +20,38 @@ export function PurchaseCard({ courseId, price, signedIn, canAccess, lectureCoun
     toast.info("Checkout is coming in the payments step.");
   }
 
+  const included = [
+    "Lifetime access",
+    `${lectureCount} ${lectureCount === 1 ? "lecture" : "lectures"}${totalSeconds > 0 ? `, ${formatTotalLength(totalSeconds)} of video` : ""}`,
+    "Watch on any device",
+  ];
+
   return (
-    <aside className="rounded-base bg-surface p-6 lg:sticky lg:top-24 lg:self-start">
-      <p className="text-4xl font-bold tracking-tight">{formatPrice(price.amount, price.currency)}</p>
-      <p className="mt-1 text-small text-muted">
-        {lectureCount} {lectureCount === 1 ? "lecture" : "lectures"}
-      </p>
+    <aside aria-label="Purchase" className="flex flex-col gap-6 rounded-card bg-surface p-6 lg:sticky lg:top-24">
+      <div className="relative aspect-video overflow-hidden rounded-base bg-t1">
+        <Image src={thumbnail} alt={`${title} thumbnail`} fill sizes="(min-width: 1024px) 443px, 100vw" className="object-cover" />
+      </div>
+      <p className="text-h1 text-ink">{formatPrice(price.amount, price.currency)}</p>
+
       {canAccess ? (
-        <Link
-          href={`/learn/${courseId}`}
-          className="mt-6 block rounded-base bg-accent px-4 py-3 text-center font-medium text-accent-ink transition-colors hover:bg-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-t5"
-        >
+        <ButtonLink href={`/learn/${courseId}`} size="lg" fullWidth>
           Start Course
-        </Link>
+        </ButtonLink>
       ) : (
-        <button
-          type="button"
-          onClick={onClick}
-          className="mt-6 w-full rounded-base bg-accent px-4 py-3 font-medium text-accent-ink transition-colors hover:bg-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-t5"
-        >
+        <Button size="lg" fullWidth onClick={onClick}>
           {isFree ? "Enroll Now" : "Buy Now"}
-        </button>
+        </Button>
       )}
+      {!signedIn && !canAccess && <p className="text-center text-muted">Log in to {isFree ? "enroll" : "purchase"}</p>}
+
+      <ul className="flex flex-col gap-4">
+        {included.map((text) => (
+          <li key={text} className="flex items-center gap-3">
+            <Icon name="check" size={24} />
+            <span>{text}</span>
+          </li>
+        ))}
+      </ul>
     </aside>
   );
 }

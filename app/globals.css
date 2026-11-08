@@ -1,17 +1,28 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens from the Figma file "Learnly" (01 Foundations, 02 Components).
+ * Product UI uses 8px radii and full pills; the quarter-circle corner is a landing-page motif.
+ */
 @theme {
   --color-bg: #0a0a0a;
   --color-surface: #151515;
   --color-surface-2: #1f1f1f;
   --color-ink: #efefef;
   --color-muted: #9a9a9a;
+  --color-border: rgba(255, 255, 255, 0.1);
   --color-accent: #b11226;
   --color-accent-deep: #860d1c;
+  --color-accent-light: #d86476;
   --color-accent-ink: #ffffff;
   --color-field: #efefef;
   --color-field-ink: #0a0a0a;
+  --color-field-muted: #5c5c5c;
   --color-field-2: #dcdcdc;
+  --color-success: #2e9e6a;
+  --color-danger: #e5484d;
+  --color-danger-tint: #4a1416;
+  --color-scrim: rgba(0, 0, 0, 0.7);
   --color-t1: #3a0710;
   --color-t2: #5e0b18;
   --color-t3: #860d1c;
@@ -20,10 +31,42 @@
 
   --font-sans: var(--font-bricolage), system-ui, sans-serif;
 
-  --text-small: 14px;
-  --text-body: 18px;
-  --text-lead: 36px;
+  --radius-xs: 4px;
   --radius-base: 8px;
+  --radius-card: 16px;
+
+  --text-display: clamp(44px, 6.6vw, 96px);
+  --text-display--line-height: 0.92;
+  --text-display--letter-spacing: -0.04em;
+  --text-display--font-weight: 600;
+  --text-h1: clamp(36px, 4.2vw, 60px);
+  --text-h1--line-height: 0.95;
+  --text-h1--letter-spacing: -0.04em;
+  --text-h1--font-weight: 600;
+  --text-h2: clamp(30px, 3vw, 40px);
+  --text-h2--line-height: 1.05;
+  --text-h2--letter-spacing: -0.03em;
+  --text-h2--font-weight: 600;
+  --text-h3: 28px;
+  --text-h3--line-height: 1.1;
+  --text-h3--letter-spacing: -0.02em;
+  --text-h3--font-weight: 600;
+  --text-lead: clamp(24px, 2.5vw, 36px);
+  --text-lead--line-height: 1.2;
+  --text-lead--letter-spacing: -0.025em;
+  --text-lead--font-weight: 500;
+  --text-body: 18px;
+  --text-body--line-height: 1.5;
+  --text-small: 14px;
+  --text-small--line-height: 1.4;
+  --text-caption: 12px;
+  --text-caption--line-height: 1.4;
+  --text-caption--letter-spacing: 0.02em;
+  --text-caption--font-weight: 500;
+  --text-button: 16px;
+  --text-button--line-height: 1.2;
+  --text-button--font-weight: 600;
+
   --ease-out-soft: cubic-bezier(0.2, 0.7, 0.1, 1);
 }
 
@@ -48,5 +91,15 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: var(--text-body);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

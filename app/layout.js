@@ -1,7 +1,6 @@
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
 import { Providers } from "@/components/providers";
-import { Navbar } from "@/components/navbar";
 import { getCurrentUser, publicUser } from "@/lib/server/auth";
 import "./globals.css";
 
@@ -22,10 +21,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={bricolage.variable}>
       <body className="min-h-screen">
-        <Providers initialUser={user ? publicUser(user) : null}>
-          <Navbar />
-          {children}
-        </Providers>
+        <Providers initialUser={user ? publicUser(user) : null}>{children}</Providers>
         <Toaster theme="dark" position="top-right" />
       </body>
     </html>

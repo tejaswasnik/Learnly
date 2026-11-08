@@ -1,32 +1,24 @@
-"use client";
+const SIZES = {
+  sm: "size-8 text-small",
+  md: "size-10 text-small",
+  lg: "size-16 text-body font-semibold",
+};
 
-import { useEffect, useRef, useState } from "react";
+export function initialsOf(name = "") {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  const letters = parts.length === 1 ? parts[0].slice(0, 2) : parts[0][0] + parts[parts.length - 1][0];
+  return letters.toUpperCase();
+}
 
-export function Avatar({ name = "", src, size = 36 }) {
-  const [failed, setFailed] = useState(false);
-  const imgRef = useRef(null);
-  const initial = name.trim().charAt(0).toUpperCase() || "?";
-  const style = { width: size, height: size };
-
-  // A server-rendered <img> can fail before hydration, so onError never fires; check once mounted.
-  useEffect(() => {
-    const img = imgRef.current;
-    if (img?.complete && img.naturalWidth === 0) setFailed(true);
-  }, [src]);
-
-  if (!src || failed) {
-    return (
-      <span
-        aria-hidden="true"
-        style={style}
-        className="grid shrink-0 place-items-center rounded-full bg-t3 text-small font-semibold text-accent-ink"
-      >
-        {initial}
-      </span>
-    );
-  }
+// Initials only: the MVP has no avatar uploads (see Avatar in 02 Components).
+export function Avatar({ name = "", size = "md", className = "" }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- remote avatar of unknown host; falls back to initials on error
-    <img ref={imgRef} src={src} alt="" style={style} className="shrink-0 rounded-full object-cover" onError={() => setFailed(true)} />
+    <span
+      aria-hidden="true"
+      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-t2 text-ink ${SIZES[size]} ${className}`}
+    >
+      {initialsOf(name)}
+    </span>
   );
 }

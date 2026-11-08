@@ -1,0 +1,11 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="mark" clip-path="url(#clip0_0_52)">
+<path id="quarter" d="M0 64V0C35.3 0 64 28.7 64 64H0Z" fill="#B11226"/>
+<path id="play" d="M20 30.5V49.5C20 51.1 21.7 52 23 51.2L38 41.7C38.2894 41.5206 38.5283 41.2703 38.6939 40.9728C38.8595 40.6754 38.9464 40.3405 38.9464 40C38.9464 39.6595 38.8595 39.3247 38.6939 39.0272C38.5283 38.7297 38.2894 38.4794 38 38.3L23 28.8C21.7 28 20 28.9 20 30.5Z" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_0_52">
+<rect width="64" height="64" fill="white"/>
+</clipPath>
+</defs>
+</svg>

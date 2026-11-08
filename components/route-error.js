@@ -1,18 +1,22 @@
 "use client";
 
-export function RouteError({ reset, title = "Something went wrong" }) {
+import { Button, ButtonLink } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+
+// Inline error block (e.g. "We couldn't load the courses"), as in Catalog / Error.
+export function RouteError({ reset, title = "Something went wrong", message = "We could not load this page. Try again in a moment." }) {
   return (
-    <main className="mx-auto grid w-full max-w-7xl place-items-center px-(--m) py-24 text-center">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-        <p className="mt-3 text-muted">We could not load this page. Please try again.</p>
-        <button
-          type="button"
-          onClick={reset}
-          className="mt-6 rounded-base bg-accent px-5 py-2.5 font-medium text-accent-ink hover:bg-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-t5"
-        >
+    <main className="mx-auto flex w-full max-w-[1440px] flex-col items-center gap-6 px-(--m) py-24 text-center">
+      <Icon name="error-banner" size={48} />
+      <h1 className="text-h2 text-ink">{title}</h1>
+      <p className="max-w-[480px] text-muted">{message}</p>
+      <div className="flex gap-3">
+        <Button size="lg" onClick={reset}>
           Try again
-        </button>
+        </Button>
+        <ButtonLink href="/" size="lg" variant="secondary">
+          Go home
+        </ButtonLink>
       </div>
     </main>
   );

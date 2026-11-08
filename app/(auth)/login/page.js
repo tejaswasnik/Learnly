@@ -1,13 +1,13 @@
-import { AuthForm } from "@/components/auth-form";
+import { AuthScreen } from "@/components/auth/auth-screen";
+import { BrandPanel } from "@/components/auth/brand-panel";
 
 export const metadata = { title: "Log in" };
 
 export default async function LoginPage({ searchParams }) {
   const { next } = await searchParams;
   return (
-    <main className="mx-auto w-full max-w-md px-(--m) py-16">
-      <h1 className="mb-8 text-4xl font-bold tracking-tight">Welcome back</h1>
-      <AuthForm mode="login" next={typeof next === "string" ? next : undefined} />
-    </main>
+    <AuthScreen mode="login" next={typeof next === "string" ? next : undefined}>
+      <BrandPanel heading="Learn one thing well." count={4} />
+    </AuthScreen>
   );
 }
