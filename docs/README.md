@@ -33,6 +33,7 @@ Commands: `npm run dev`, `npm run build`, `npm start`, `npm run lint`. Health ch
 ## Folder layout
 - `app/` routes: `(site)` pages with navbar and footer, `(auth)` login/register, `(player)` course player, `api/` Route Handlers
 - `components/` UI (`ui/`, `landing/`, `course/`, `instructor/`, `student/`, `player/`, `profile/`)
+- Icons come from [Lucide](https://lucide.dev) (`lucide-react`). `components/ui/icon.js` maps each icon name the app uses to a Lucide icon and its default color; to change an icon, edit that one table. The brand logo and illustrations (`public/brand/`) and the Google "G" on the sign-in button are not Lucide: they are the product's own artwork and Google's required logo.
 - `lib/server/` config, db, auth, validators, services (courses, lectures, enrollment, imagekit, razorpay); `lib/client/`; `lib/shared/`
 - `models/` Mongoose models; `proxy.js` route guards; `docs/` specs; `landing-page/` original HTML reference
 

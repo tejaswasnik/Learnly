@@ -3,7 +3,7 @@ import { CourseCard } from "@/components/course-card";
 import { HeroPlayer } from "@/components/landing/hero-player";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { LandingRoot } from "@/components/landing/landing-root";
-import { LockGlyph, PlayGlyph } from "@/components/landing/glyphs";
+import { LockGlyph, PlayGlyph, SearchGlyph } from "@/components/landing/glyphs";
 import { PublishShowcase } from "@/components/landing/publish-showcase";
 import { getCurrentUser } from "@/lib/server/auth";
 import { listPublishedCourses } from "@/lib/server/services/courses";
@@ -81,9 +81,7 @@ export default async function LandingPage() {
             <div className="actions">
               <Link className="btn" href="/courses">
                 Browse courses
-                <svg width="14" height="14" viewBox="0 0 12 12" aria-hidden="true">
-                  <path d="M3 1.6v8.8c0 .5.5.8.9.5l6.6-4.4a.6.6 0 0 0 0-1L3.9 1.1c-.4-.3-.9 0-.9.5Z" fill="currentColor" />
-                </svg>
+                <PlayGlyph width={14} height={14} />
               </Link>
               {teach && (
                 <Link className="link" href={teach.href}>
@@ -174,10 +172,7 @@ export default async function LandingPage() {
             <div className="tile t-c rise">
               <div className="el" data-ui aria-hidden="true">
                 <div className="search">
-                  <svg viewBox="0 0 12 12">
-                    <circle cx="5" cy="5" r="3.6" fill="none" stroke="currentColor" strokeWidth="1.6" />
-                    <path d="m8 8 3 3" stroke="currentColor" strokeWidth="1.6" />
-                  </svg>
+                  <SearchGlyph />
                   react hoo
                   <span className="cur" />
                 </div>

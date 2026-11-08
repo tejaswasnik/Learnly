@@ -68,9 +68,7 @@ export function HeroPlayer() {
           <Code kind={current.code} />
         </pre>
         <div className="scrub" aria-hidden="true">
-          <svg viewBox="0 0 12 12">
-            <path d="M3 1.6v8.8c0 .5.5.8.9.5l6.6-4.4a.6.6 0 0 0 0-1L3.9 1.1c-.4-.3-.9 0-.9.5Z" fill="currentColor" />
-          </svg>
+          <PlayGlyph />
           <span>2:31</span>
           <div className="bar">
             <i />

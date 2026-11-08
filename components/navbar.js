@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers";
 import { Avatar } from "@/components/avatar";
+import { Menu, X } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
 import { ButtonLink } from "@/components/ui/button";
@@ -145,9 +146,7 @@ export function Navbar() {
           onClick={() => setMenuFor(menuOpen ? null : pathname)}
           className="inline-flex size-11 items-center justify-center rounded-base hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-accent-light md:hidden"
         >
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
-          </svg>
+          {menuOpen ? <X aria-hidden="true" className="size-6" /> : <Menu aria-hidden="true" className="size-6" />}
         </button>
       </nav>
 

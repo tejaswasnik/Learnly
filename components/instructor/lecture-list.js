@@ -370,7 +370,7 @@ export function LectureList({ courseId }) {
                               onClick={() => moveSection(section, -1)}
                               className={iconButton}
                             >
-                              <Icon name="expand-less" size={20} className="invert" />
+                              <Icon name="expand-less" size={20} className="text-ink" />
                             </button>
                             <button
                               type="button"
@@ -380,7 +380,7 @@ export function LectureList({ courseId }) {
                               onClick={() => moveSection(section, 1)}
                               className={iconButton}
                             >
-                              <Icon name="expand-more" size={20} className="invert" />
+                              <Icon name="expand-more" size={20} className="text-ink" />
                             </button>
                             <button type="button" aria-label={`Rename section ${section.title}`} onClick={() => setDialog({ mode: "rename", section })} className={iconButton}>
                               <Icon name="edit-sm" size={20} />
@@ -414,7 +414,7 @@ export function LectureList({ courseId }) {
                                     onClick={() => moveLecture(lecture, -1)}
                                     className={iconButton}
                                   >
-                                    <Icon name="expand-less" size={20} className="invert" />
+                                    <Icon name="expand-less" size={20} className="text-ink" />
                                   </button>
                                   <button
                                     type="button"
@@ -424,7 +424,7 @@ export function LectureList({ courseId }) {
                                     onClick={() => moveLecture(lecture, 1)}
                                     className={iconButton}
                                   >
-                                    <Icon name="expand-more" size={20} className="invert" />
+                                    <Icon name="expand-more" size={20} className="text-ink" />
                                   </button>
                                 </>
                               )}
