@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/server/auth";
+import { requireVerified } from "@/lib/server/auth";
 import { connectDb } from "@/lib/server/db";
 import { readMultipart } from "@/lib/server/form";
 import { HttpError, ok, withErrors } from "@/lib/server/http";
@@ -11,7 +11,7 @@ import { Course } from "@/models/course";
 export const runtime = "nodejs";
 
 export const POST = withErrors(async (req) => {
-  const user = await requireRole(req, "instructor");
+  const user = await requireVerified(req, "instructor");
   const { fields, file } = await readMultipart(req, "courseThumbnail");
 
   const data = createCourseSchema.parse(fields);

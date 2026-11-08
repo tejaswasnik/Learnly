@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ALL_ROLES, default: "student" },
     photourl: { type: String, default: DEFAULT_AVATAR_URL },
     tokenVersion: { type: Number, default: 0 },
+    emailVerified: { type: Boolean, default: false },
+    emailVerifiedAt: { type: Date },
   },
   { timestamps: true },
 );

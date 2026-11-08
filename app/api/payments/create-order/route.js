@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/server/auth";
+import { requireVerified } from "@/lib/server/auth";
 import { getConfig } from "@/lib/server/config";
 import { connectDb } from "@/lib/server/db";
 import { HttpError, ok, parseBody, parseId, withErrors } from "@/lib/server/http";
@@ -11,7 +11,7 @@ import { Order } from "@/models/order";
 export const runtime = "nodejs";
 
 export const POST = withErrors(async (req) => {
-  const user = await requireUser(req);
+  const user = await requireVerified(req);
   const { courseId } = await parseBody(createOrderSchema, req);
   parseId(courseId);
   await connectDb();

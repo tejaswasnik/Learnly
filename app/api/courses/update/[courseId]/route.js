@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/server/auth";
+import { VERIFY_FIRST_MESSAGE, requireRole } from "@/lib/server/auth";
 import { readMultipart } from "@/lib/server/form";
 import { HttpError, ok, withErrors } from "@/lib/server/http";
 import { deleteFile, uploadImage } from "@/lib/server/services/imagekit";
@@ -19,6 +19,7 @@ export const PATCH = withErrors(async (req, { params }) => {
   const image = file ? await validateImageFile(file) : null;
 
   if (data.isPublished === true && !course.isPublished) {
+    if (!user.emailVerified && user.role !== "admin") throw new HttpError(403, VERIFY_FIRST_MESSAGE);
     const lectureCount = await Lecture.countDocuments({ courseId: course._id });
     if (lectureCount === 0) throw new HttpError(409, "Add at least one lecture before publishing this course");
   }
